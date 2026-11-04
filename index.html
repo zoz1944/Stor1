@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>مهام المشتريات</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#0f766e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--tx:#17202a;--mut:#6b7785;--pri:#0f766e;--red:#dc2626;--ok:#16a34a;--bd:#e2e8f0}
+@media(prefers-color-scheme:dark){:root{--bg:#10161c;--card:#1a232c;--tx:#e8edf2;--mut:#9aa7b4;--bd:#2a3642}}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,"Segoe UI",Tahoma,sans-serif;background:var(--bg);color:var(--tx);padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.w{max-width:640px;margin:auto;padding:14px}
+h1{font-size:20px;margin:6px 0 12px;display:flex;justify-content:space-between;align-items:center}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px;margin-bottom:10px}
+input,select,button,textarea{font:inherit;color:inherit}
+input,select{width:100%;padding:10px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);margin-bottom:8px}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.btn{border:0;border-radius:10px;padding:10px 14px;background:var(--pri);color:#fff;font-weight:600;cursor:pointer}
+.btn.s{padding:7px 10px;font-size:13px}.btn.g{background:var(--ok)}.btn.x{background:transparent;color:var(--mut);border:1px solid var(--bd)}
+.t{display:flex;flex-direction:column;gap:8px}
+.top{display:flex;justify-content:space-between;gap:8px}
+.tag{font-size:12px;background:var(--bg);padding:2px 8px;border-radius:20px;color:var(--mut)}
+.due{font-size:13px;color:var(--mut)}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.late{border:2px solid var(--red);animation:bl 1s infinite}
+.late .due{color:var(--red);font-weight:700}
+@keyframes bl{0%,100%{background:var(--card)}50%{background:#dc262633}}
+.done{opacity:.55}.done .tx{text-decoration:line-through}
+.sec{font-size:14px;color:var(--mut);margin:14px 4px 6px}
+#ban{position:fixed;top:0;left:0;right:0;background:var(--red);color:#fff;padding:14px;z-index:9;display:none;text-align:center;font-weight:700;animation:bl2 .8s infinite}
+@keyframes bl2{50%{opacity:.6}}
+.empty{text-align:center;color:var(--mut);padding:20px}
+</style>
+</head>
+<body>
+<div id="ban"></div>
+<div class="w">
+<h1><span>📋 مهام المشتريات</span><button class="btn s x" id="nb">🔔 تفعيل التنبيهات</button></h1>
+
+<div class="card">
+<input id="tx" placeholder="المهمة (مثال: فاتورة صيدلية الشفاء)">
+<div class="row">
+<select id="cat"></select>
+<input id="due" type="datetime-local">
+</div>
+<button class="btn" id="add" style="width:100%">➕ إضافة مهمة</button>
+</div>
+
+<select id="flt"></select>
+<div id="list" class="t"></div>
+<p class="empty" style="font-size:12px">للتنبيه والشاشة مطفية: اضغط 📅 على المهمة لإضافتها لتقويم الجهاز.</p>
+</div>
+<script>
+const CATS={rep:'👤 مهام مندوبين',order:'📦 أوردر (محافظات/مذاخر/تجهيزات)',sale:'🧾 فواتير مبيعات صيدليات',ret:'↩️ فواتير مرتجعات مذخر',offer:'🏷️ عروض',inv:'📊 جرد شركات'};
+const $=s=>document.querySelector(s);
+let tasks=[];try{tasks=JSON.parse(localStorage.getItem('t')||'[]')}catch(e){}
+const save=()=>{try{localStorage.setItem('t',JSON.stringify(tasks))}catch(e){}};
+const d0=ts=>new Date(ts).setHours(0,0,0,0);
+const fmt=ts=>new Date(ts).toLocaleString('ar-EG',{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'});
+$('#cat').innerHTML=Object.entries(CATS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
+$('#flt').innerHTML='<option value="">كل الأقسام</option>'+$('#cat').innerHTML;
+$('#flt').onchange=render;
+
+function cleanup(){const t0=d0(Date.now());tasks=tasks.filter(t=>!(t.done&&t.doneAt<t0));save()}
+const late=t=>!t.done&&((t.due&&t.due<=Date.now())||d0(t.created)<d0(Date.now()));
+
+function render(){
+ cleanup();
+ const f=$('#flt').value;
+ const L=tasks.filter(t=>!f||t.cat===f);
+ const open=L.filter(t=>!t.done).sort((a,b)=>(late(b)-late(a))||((a.due||9e15)-(b.due||9e15)));
+ const dn=L.filter(t=>t.done);
+ const card=t=>`<div class="card ${late(t)?'late':''} ${t.done?'done':''}">
+ <div class="top"><span class="tx">${esc(t.text)}</span><span class="tag">${CATS[t.cat].split(' ')[0]} ${CATS[t.cat].split(' ').slice(1).join(' ').split('(')[0]}</span></div>
+ ${t.due?`<div class="due">⏰ ${fmt(t.due)}${late(t)&&!t.done?' — متأخرة!':''}</div>`:''}
+ <div class="acts">${t.done?`<button class="btn s x" onclick="undo('${t.id}')">↩ تراجع</button>`:
+ `<button class="btn s g" onclick="done('${t.id}')">✔ Complete</button>
+ ${t.due?`<button class="btn s x" onclick="ics('${t.id}')">📅 تقويم</button>`:''}`}
+ <button class="btn s x" onclick="del('${t.id}')">🗑</button></div></div>`;
+ $('#list').innerHTML=(open.length?open.map(card).join(''):'<div class="empty">لا توجد مهام مفتوحة 🎉</div>')+(dn.length?'<div class="sec">مكتملة اليوم (تختفي غداً)</div>'+dn.map(card).join(''):'');
+}
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const find=id=>tasks.find(t=>t.id===id);
+window.done=id=>{const t=find(id);t.done=true;t.doneAt=Date.now();save();render();hideBan()};
+window.undo=id=>{const t=find(id);t.done=false;delete t.doneAt;save();render()};
+window.del=id=>{if(confirm('حذف المهمة؟')){tasks=tasks.filter(t=>t.id!==id);save();render()}};
+
+$('#add').onclick=()=>{
+ const text=$('#tx').value.trim();if(!text)return $('#tx').focus();
+ const v=$('#due').value;
+ tasks.push({id:'t'+Date.now(),text,cat:$('#cat').value,due:v?new Date(v).getTime():null,created:Date.now(),done:false});
+ $('#tx').value='';$('#due').value='';save();render();unlockAudio();
+ if(v&&'Notification' in window&&Notification.permission==='default')askPerm();
+};
+
+/* ---- الصوت ---- */
+let ac;
+function unlockAudio(){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();ac.resume()}catch(e){}}
+document.addEventListener('click',unlockAudio);
+function beep(){try{unlockAudio();[0,.35,.7].forEach(o=>{const s=ac.createOscillator(),g=ac.createGain();s.type='square';s.frequency.value=880;g.gain.value=.25;s.connect(g);g.connect(ac.destination);s.start(ac.currentTime+o);s.stop(ac.currentTime+o+.22)})}catch(e){}}
+
+/* ---- الإشعارات ---- */
+let reg=null;
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').then(r=>reg=r).catch(()=>{});
+function askPerm(){if(!('Notification' in window))return alert('المتصفح لا يدعم الإشعارات. على الآيفون: أضف التطبيق للشاشة الرئيسية أولاً.');Notification.requestPermission().then(updNb)}
+function updNb(){const b=$('#nb');if(!('Notification' in window)){b.textContent='⚠️ الإشعارات غير مدعومة';return}
+ b.textContent=Notification.permission==='granted'?'🔔 التنبيهات مفعّلة':'🔔 تفعيل التنبيهات'}
+$('#nb').onclick=askPerm;updNb();
+
+function hideBan(){$('#ban').style.display='none'}
+function notify(t){
+ beep();navigator.vibrate&&navigator.vibrate([300,100,300,100,300]);
+ const b=$('#ban');b.textContent='⏰ '+t.text;b.style.display='block';b.onclick=hideBan;
+ if('Notification' in window&&Notification.permission==='granted'){
+  const o={body:CATS[t.cat],tag:t.id,renotify:true,requireInteraction:true,vibrate:[300,100,300],icon:'icon-192.png'};
+  (reg?reg.showNotification('⏰ '+t.text,o):Promise.resolve(new Notification('⏰ '+t.text,o))).catch(()=>{try{new Notification('⏰ '+t.text,o)}catch(e){}});
+ }
+}
+function check(){
+ const n=Date.now();let ch=false;
+ tasks.forEach(t=>{if(!t.done&&t.due&&t.due<=n&&(!t.n||n-t.n>=300000)){t.n=n;ch=true;notify(t)}}); /* يعيد التنبيه كل 5 دقائق حتى تكتمل */
+ if(ch){save();render()}
+}
+setInterval(check,10000);setInterval(render,60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){check();render()}});
+
+/* ---- تصدير للتقويم ---- */
+window.ics=id=>{const t=find(id),z=x=>new Date(x).toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
+ const s=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//tasks//AR','BEGIN:VEVENT','UID:'+t.id+'@tasks','DTSTAMP:'+z(Date.now()),'DTSTART:'+z(t.due),'DTEND:'+z(t.due+1800000),'SUMMARY:'+t.text.replace(/[\n,;]/g,' '),'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+t.text.replace(/[\n,;]/g,' '),'TRIGGER:PT0S','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s],{type:'text/calendar'}));a.download='task.ics';a.click()};
+
+render();check();
+</script>
+</body>
+</html>
