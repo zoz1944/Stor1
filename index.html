@@ -51,6 +51,12 @@ input,select{width:100%;padding:10px;border-radius:10px;border:1px solid var(--b
 <button class="btn" id="add" style="width:100%">➕ إضافة مهمة</button>
 </div>
 
+<button class="btn" id="ca" style="width:100%;margin-bottom:10px">📅 إضافة كل المهام للتقويم (تنبيه مضمون بصوت)</button>
+<details class="card"><summary><b>🤖 تلكرام (اختياري، يحتاج خادم)</b></summary>
+<input id="wu" placeholder="رابط الخادم https://xxx.workers.dev" style="margin-top:8px">
+<div class="row"><input id="wk" placeholder="الرمز السري"><select id="wi"><option value="15">كل 15 دقيقة</option><option value="30">كل 30 دقيقة</option><option value="60">كل ساعة</option><option value="120">كل ساعتين</option></select></div>
+<button class="btn" id="sy" style="width:100%">🔄 مزامنة تلكرام</button><div id="ss" class="due" style="margin-top:6px"></div></details>
+
 <select id="flt"></select>
 <div id="list" class="t"></div>
 <p class="empty" style="font-size:12px">للتنبيه والشاشة مطفية: اضغط 📅 على المهمة لإضافتها لتقويم الجهاز.</p>
@@ -133,6 +139,35 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden){check();r
 window.ics=id=>{const t=find(id),z=x=>new Date(x).toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
  const s=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//tasks//AR','BEGIN:VEVENT','UID:'+t.id+'@tasks','DTSTAMP:'+z(Date.now()),'DTSTART:'+z(t.due),'DTEND:'+z(t.due+1800000),'SUMMARY:'+t.text.replace(/[\n,;]/g,' '),'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+t.text.replace(/[\n,;]/g,' '),'TRIGGER:PT0S','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s],{type:'text/calendar'}));a.download='task.ics';a.click()};
+
+/* ---- مزامنة تلكرام ---- */
+let cf={};try{cf=JSON.parse(localStorage.getItem('cf')||'{}')}catch(e){}
+$('#wu').value=cf.u||'';$('#wk').value=cf.k||'';$('#wi').value=cf.i||'60';
+$('#sy').onclick=async()=>{
+ const u=$('#wu').value.trim(),k=$('#wk').value.trim(),i=+$('#wi').value,s=$('#ss');
+ if(!u||!k){s.textContent='⚠️ أدخل رابط الخادم والرمز السري';return}
+ try{localStorage.setItem('cf',JSON.stringify({u,k,i}))}catch(e){}
+ s.textContent='⏳ جاري المزامنة...';
+ try{
+  const r=await fetch(u,{method:'POST',headers:{'content-type':'application/json','x-key':k},
+   body:JSON.stringify({interval:i,tasks:tasks.map(({id,text,cat,due,done})=>({id,text,cat,due,done}))})});
+  const j=await r.json();
+  s.textContent=j.ok?'✅ تمت المزامنة ('+j.count+' مهمة) '+new Date().toLocaleTimeString('ar-EG')
+   :j.error==='no_chat'?'⚠️ افتح البوت بتلكرام واضغط Start ثم أعد المزامنة':'❌ الرمز السري غير صحيح';
+ }catch(e){s.textContent='❌ تعذر الاتصال، تحقق من الرابط والإنترنت'}
+};
+
+/* ---- تقويم: تنبيهات متكررة (عند الوقت ثم بعد 10 و30 و60 دقيقة) ---- */
+function build(list){
+ const z=x=>new Date(x).toISOString().replace(/[-:]/g,'').split('.')[0]+'Z',c=s=>s.replace(/[\n,;]/g,' ');
+ const ev=list.map(t=>['BEGIN:VEVENT','UID:'+t.id+'@tasks','DTSTAMP:'+z(Date.now()),'DTSTART:'+z(t.due),'DTEND:'+z(t.due+1800000),'SUMMARY:'+c(t.text)]
+  .concat(['PT0S','PT10M','PT30M','PT60M'].flatMap(p=>['BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+c(t.text),'TRIGGER:'+p,'END:VALARM']),['END:VEVENT']).join('\r\n'));
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(new Blob(['BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//tasks//AR\r\n'+ev.join('\r\n')+'\r\nEND:VCALENDAR'],{type:'text/calendar'}));
+ a.download='tasks.ics';a.click();
+}
+window.ics=id=>build([find(id)]);
+$('#ca').onclick=()=>{const l=tasks.filter(t=>!t.done&&t.due&&t.due>Date.now());l.length?build(l):alert('لا توجد مهام قادمة بوقت تنبيه')};
 
 render();check();
 </script>
