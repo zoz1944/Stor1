@@ -1,146 +1,205 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>مهام المشتريات</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
-<meta name="theme-color" content="#0f766e">
+<meta name="theme-color" content="#6366f1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('th')||'light'}catch(e){}</script>
 <style>
-:root{--bg:#f4f6f8;--card:#fff;--tx:#17202a;--mut:#6b7785;--pri:#0f766e;--red:#dc2626;--ok:#16a34a;--bd:#e2e8f0}
-@media(prefers-color-scheme:dark){:root{--bg:#10161c;--card:#1a232c;--tx:#e8edf2;--mut:#9aa7b4;--bd:#2a3642}}
-*{box-sizing:border-box}
-body{margin:0;font-family:system-ui,"Segoe UI",Tahoma,sans-serif;background:var(--bg);color:var(--tx);padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
-.w{max-width:640px;margin:auto;padding:14px}
-h1{font-size:20px;margin:6px 0 12px;display:flex;justify-content:space-between;align-items:center}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px;margin-bottom:10px}
-input,select,button,textarea{font:inherit;color:inherit}
-input,select{width:100%;padding:10px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);margin-bottom:8px}
-.row{display:flex;gap:8px}.row>*{flex:1}
-.btn{border:0;border-radius:10px;padding:10px 14px;background:var(--pri);color:#fff;font-weight:600;cursor:pointer}
-.btn.s{padding:7px 10px;font-size:13px}.btn.g{background:var(--ok)}.btn.x{background:transparent;color:var(--mut);border:1px solid var(--bd)}
-.t{display:flex;flex-direction:column;gap:8px}
-.top{display:flex;justify-content:space-between;gap:8px}
-.tag{font-size:12px;background:var(--bg);padding:2px 8px;border-radius:20px;color:var(--mut)}
-.due{font-size:13px;color:var(--mut)}
-.acts{display:flex;gap:6px;flex-wrap:wrap}
-.late{border:2px solid var(--red);animation:bl 1s infinite}
-.late .due{color:var(--red);font-weight:700}
-@keyframes bl{0%,100%{background:var(--card)}50%{background:#dc262633}}
-.done{opacity:.55}.done .tx{text-decoration:line-through}
-.sec{font-size:14px;color:var(--mut);margin:14px 4px 6px}
-#ban{position:fixed;top:0;left:0;right:0;background:var(--red);color:#fff;padding:14px;z-index:9;display:none;text-align:center;font-weight:700;animation:bl2 .8s infinite}
-@keyframes bl2{50%{opacity:.6}}
-.empty{text-align:center;color:var(--mut);padding:20px}
+:root{--bg:#f3f5fb;--card:#fff;--tx:#1b2235;--mut:#7a8497;--pri:#6366f1;--pri2:#8b5cf6;--red:#ef4444;--ok:#10b981;--bd:#e8ebf3;--sh:0 8px 28px rgba(40,50,110,.09);--in:#f3f5fb}
+[data-theme=dark]{--bg:#0c1017;--card:#161c27;--tx:#e9edf5;--mut:#8b96aa;--bd:#232b3a;--sh:0 8px 28px rgba(0,0,0,.45);--in:#0f141d}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:system-ui,"Segoe UI",Tahoma,sans-serif;background:var(--bg);color:var(--tx);transition:background .4s,color .4s;min-height:100vh}
+button,input,select{font:inherit;color:inherit}
+.hd{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;padding:calc(env(safe-area-inset-top) + 18px) 18px 70px;border-radius:0 0 32px 32px}
+.hd .r{display:flex;justify-content:space-between;align-items:center;max-width:640px;margin:auto}
+.hd h1{margin:0;font-size:21px}.hd small{opacity:.85}
+.ib{width:42px;height:42px;border-radius:14px;border:0;background:#ffffff2e;color:#fff;font-size:19px;cursor:pointer;backdrop-filter:blur(8px);transition:transform .25s}
+.ib:active{transform:scale(.88) rotate(15deg)}
+.w{max-width:640px;margin:-52px auto 0;padding:0 14px 110px}
+.st{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.sc{background:var(--card);border-radius:18px;padding:12px;text-align:center;box-shadow:var(--sh);transition:background .4s}
+.sc b{display:block;font-size:24px}.sc span{font-size:12px;color:var(--mut)}
+.sc.l b{color:var(--red)}.sc.d b{color:var(--ok)}
+.fl{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none}
+.fl::-webkit-scrollbar{display:none}
+.cp{flex:none;border:1px solid var(--bd);background:var(--card);padding:8px 14px;border-radius:30px;font-size:13px;cursor:pointer;transition:all .25s}
+.cp.on{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;border-color:transparent;transform:scale(1.05);box-shadow:0 6px 16px #6366f155}
+.tk{display:flex;gap:12px;align-items:flex-start;background:var(--card);border-radius:20px;padding:14px;margin-bottom:10px;box-shadow:var(--sh);border-right:5px solid var(--c);transition:transform .25s,background .4s;position:relative}
+.tk.in{animation:up .5s cubic-bezier(.2,.8,.2,1) both}
+.tk:active{transform:scale(.985)}
+@keyframes up{from{opacity:0;transform:translateY(22px) scale(.96)}to{opacity:1;transform:none}}
+.tk.pop{animation:pop .35s ease forwards}
+@keyframes pop{to{opacity:0;transform:translateX(-60px) scale(.9);max-height:0;padding:0;margin:0}}
+.ck{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid var(--c);background:transparent;cursor:pointer;color:#fff;font-weight:700;transition:all .25s;margin-top:2px}
+.ck:hover,.ck:active{background:var(--c);transform:scale(1.15)}
+.done .ck{background:var(--ok);border-color:var(--ok)}
+.bd{flex:1;min-width:0}
+.tt{font-weight:650;font-size:16px;word-break:break-word}
+.done .tt{text-decoration:line-through;color:var(--mut)}.done{opacity:.6}
+.ch{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.ch span{font-size:12px;padding:3px 10px;border-radius:20px;background:var(--in);color:var(--mut)}
+.ch span.c{background:color-mix(in srgb,var(--c) 15%,transparent);color:var(--c);font-weight:600}
+.du{margin-top:8px;font-size:13px;color:var(--mut)}
+.ac{display:flex;flex-direction:column;gap:6px}
+.ac button{width:34px;height:34px;border-radius:11px;border:0;background:var(--in);cursor:pointer;transition:transform .2s}
+.ac button:active{transform:scale(.8)}
+.late{background:color-mix(in srgb,var(--red) 8%,var(--card));animation:pl 1.1s infinite!important;border-right-color:var(--red)}
+.late .du{color:var(--red);font-weight:700}
+@keyframes pl{0%,100%{box-shadow:0 0 0 0 #ef444466,var(--sh)}50%{box-shadow:0 0 0 8px #ef444400,0 0 22px #ef444477;background:color-mix(in srgb,var(--red) 20%,var(--card))}}
+.sec{font-size:13px;color:var(--mut);margin:18px 6px 8px}
+.em{text-align:center;color:var(--mut);padding:40px 10px}.em i{font-size:46px;display:block;font-style:normal;animation:fl 3s ease-in-out infinite}
+@keyframes fl{50%{transform:translateY(-8px)}}
+.fab{position:fixed;left:20px;bottom:calc(env(safe-area-inset-bottom) + 20px);width:62px;height:62px;border-radius:22px;border:0;background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;font-size:32px;box-shadow:0 10px 26px #6366f180;cursor:pointer;z-index:5;transition:transform .3s}
+.fab:active{transform:scale(.88) rotate(90deg)}
+.ov{position:fixed;inset:0;background:#0007;opacity:0;pointer-events:none;transition:opacity .3s;z-index:8;backdrop-filter:blur(3px)}
+.ov.on{opacity:1;pointer-events:auto}
+.sh{position:fixed;bottom:0;left:0;right:0;max-width:640px;margin:auto;background:var(--card);border-radius:28px 28px 0 0;padding:18px 18px calc(env(safe-area-inset-bottom) + 20px);transform:translateY(105%);transition:transform .42s cubic-bezier(.2,.9,.2,1);z-index:9}
+.sh.on{transform:none}
+.sh h3{margin:0 0 12px}
+.sh input,.sh select,.set input,.set select{width:100%;padding:13px;border-radius:14px;border:1.5px solid var(--bd);background:var(--in);margin-bottom:10px;outline:0;transition:border .2s}
+.sh input:focus,.set input:focus{border-color:var(--pri)}
+.row{display:flex;gap:8px}.row>*{flex:1;min-width:0}
+.bt{width:100%;border:0;border-radius:14px;padding:14px;background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;font-weight:700;cursor:pointer;transition:transform .2s}
+.bt:active{transform:scale(.97)}.bt.o{background:var(--card);color:var(--pri);border:1.5px solid var(--pri);margin-bottom:12px}
+.set{background:var(--card);border-radius:18px;padding:14px;box-shadow:var(--sh);margin-top:16px}
+.set summary{cursor:pointer;font-weight:600}
+#ban{position:fixed;top:0;left:0;right:0;background:var(--red);color:#fff;padding:calc(env(safe-area-inset-top) + 14px) 14px 14px;z-index:20;transform:translateY(-110%);transition:transform .4s;text-align:center;font-weight:700}
+#ban.on{transform:none;animation:bn .8s infinite}@keyframes bn{50%{opacity:.7}}
 </style>
 </head>
 <body>
 <div id="ban"></div>
+<div class="hd"><div class="r">
+<div><h1>📋 مهام المشتريات</h1><small id="dt"></small></div>
+<div style="display:flex;gap:8px"><button class="ib" id="nb" title="التنبيهات">🔔</button><button class="ib" id="tm" title="الوضع">🌙</button></div>
+</div></div>
+
 <div class="w">
-<h1><span>📋 مهام المشتريات</span><button class="btn s x" id="nb">🔔 تفعيل التنبيهات</button></h1>
+<div class="st"><div class="sc"><b id="s1">0</b><span>مفتوحة</span></div><div class="sc l"><b id="s2">0</b><span>متأخرة</span></div><div class="sc d"><b id="s3">0</b><span>منجزة اليوم</span></div></div>
+<div class="fl" id="fl"></div>
+<button class="bt o" id="ca">📅 إضافة كل المهام للتقويم (تنبيه مضمون بصوت)</button>
+<div id="list"></div>
 
-<div class="card">
-<input id="tx" placeholder="المهمة (مثال: فاتورة صيدلية الشفاء)">
-<div class="row">
-<select id="cat"></select>
-<input id="due" type="datetime-local">
-</div>
-<button class="btn" id="add" style="width:100%">➕ إضافة مهمة</button>
-</div>
-
-<button class="btn" id="ca" style="width:100%;margin-bottom:10px">📅 إضافة كل المهام للتقويم (تنبيه مضمون بصوت)</button>
-<details class="card"><summary><b>🤖 تلكرام (اختياري، يحتاج خادم)</b></summary>
-<input id="wu" placeholder="رابط الخادم https://xxx.workers.dev" style="margin-top:8px">
+<details class="set"><summary>🤖 تلكرام (اختياري، يحتاج خادم)</summary>
+<input id="wu" placeholder="رابط الخادم https://xxx.workers.dev" style="margin-top:10px">
 <div class="row"><input id="wk" placeholder="الرمز السري"><select id="wi"><option value="15">كل 15 دقيقة</option><option value="30">كل 30 دقيقة</option><option value="60">كل ساعة</option><option value="120">كل ساعتين</option></select></div>
-<button class="btn" id="sy" style="width:100%">🔄 مزامنة تلكرام</button><div id="ss" class="due" style="margin-top:6px"></div></details>
-
-<select id="flt"></select>
-<div id="list" class="t"></div>
-<p class="empty" style="font-size:12px">للتنبيه والشاشة مطفية: اضغط 📅 على المهمة لإضافتها لتقويم الجهاز.</p>
+<button class="bt" id="sy">🔄 مزامنة تلكرام</button><div id="ss" class="du"></div></details>
 </div>
+
+<button class="fab" id="fab">+</button>
+<div class="ov" id="ov"></div>
+<div class="sh" id="sh">
+<h3>➕ مهمة جديدة</h3>
+<input id="tx" placeholder="المهمة (مثال: فاتورة صيدلية الشفاء)">
+<select id="cat"></select>
+<div class="row"><input id="rep" placeholder="👤 اسم المندوب (اختياري)"><input id="co" placeholder="🏢 اسم الشركة (اختياري)"></div>
+<input id="due" type="datetime-local">
+<button class="bt" id="add">إضافة المهمة</button>
+</div>
+
 <script>
-const CATS={rep:'👤 مهام مندوبين',order:'📦 أوردر (محافظات/مذاخر/تجهيزات)',sale:'🧾 فواتير مبيعات صيدليات',ret:'↩️ فواتير مرتجعات مذخر',offer:'🏷️ عروض',inv:'📊 جرد شركات'};
+const CATS={rep:{n:'مهام مندوبين',i:'👤',c:'#6366f1'},order:{n:'أوردر',i:'📦',c:'#0ea5e9'},sale:{n:'فواتير مبيعات',i:'🧾',c:'#10b981'},ret:{n:'مرتجعات',i:'↩️',c:'#f59e0b'},offer:{n:'عروض',i:'🏷️',c:'#ec4899'},inv:{n:'جرد شركات',i:'📊',c:'#8b5cf6'}};
 const $=s=>document.querySelector(s);
 let tasks=[];try{tasks=JSON.parse(localStorage.getItem('t')||'[]')}catch(e){}
 const save=()=>{try{localStorage.setItem('t',JSON.stringify(tasks))}catch(e){}};
 const d0=ts=>new Date(ts).setHours(0,0,0,0);
 const fmt=ts=>new Date(ts).toLocaleString('ar-EG',{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'});
-$('#cat').innerHTML=Object.entries(CATS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
-$('#flt').innerHTML='<option value="">كل الأقسام</option>'+$('#cat').innerHTML;
-$('#flt').onchange=render;
+const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const find=id=>tasks.find(t=>t.id===id);
+let flt='';const seen=new Set();
+
+/* الوضع */
+function theme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('th',t)}catch(e){}$('#tm').textContent=t==='dark'?'☀️':'🌙'}
+$('#tm').onclick=()=>theme(document.documentElement.dataset.theme==='dark'?'light':'dark');
+theme(document.documentElement.dataset.theme);
+$('#dt').textContent=new Date().toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'});
+
+$('#cat').innerHTML=Object.entries(CATS).map(([k,v])=>`<option value="${k}">${v.i} ${v.n}</option>`).join('');
+function chips(){$('#fl').innerHTML=[['','🗂️ الكل']].concat(Object.entries(CATS).map(([k,v])=>[k,v.i+' '+v.n])).map(([k,l])=>`<button class="cp ${flt===k?'on':''}" onclick="flt='${k}';chips();render()">${l}</button>`).join('')}
 
 function cleanup(){const t0=d0(Date.now());tasks=tasks.filter(t=>!(t.done&&t.doneAt<t0));save()}
 const late=t=>!t.done&&((t.due&&t.due<=Date.now())||d0(t.created)<d0(Date.now()));
 
 function render(){
  cleanup();
- const f=$('#flt').value;
- const L=tasks.filter(t=>!f||t.cat===f);
+ const L=tasks.filter(t=>!flt||t.cat===flt);
  const open=L.filter(t=>!t.done).sort((a,b)=>(late(b)-late(a))||((a.due||9e15)-(b.due||9e15)));
  const dn=L.filter(t=>t.done);
- const card=t=>`<div class="card ${late(t)?'late':''} ${t.done?'done':''}">
- <div class="top"><span class="tx">${esc(t.text)}</span><span class="tag">${CATS[t.cat].split(' ')[0]} ${CATS[t.cat].split(' ').slice(1).join(' ').split('(')[0]}</span></div>
- ${t.due?`<div class="due">⏰ ${fmt(t.due)}${late(t)&&!t.done?' — متأخرة!':''}</div>`:''}
- <div class="acts">${t.done?`<button class="btn s x" onclick="undo('${t.id}')">↩ تراجع</button>`:
- `<button class="btn s g" onclick="done('${t.id}')">✔ Complete</button>
- ${t.due?`<button class="btn s x" onclick="ics('${t.id}')">📅 تقويم</button>`:''}`}
- <button class="btn s x" onclick="del('${t.id}')">🗑</button></div></div>`;
- $('#list').innerHTML=(open.length?open.map(card).join(''):'<div class="empty">لا توجد مهام مفتوحة 🎉</div>')+(dn.length?'<div class="sec">مكتملة اليوم (تختفي غداً)</div>'+dn.map(card).join(''):'');
+ $('#s1').textContent=tasks.filter(t=>!t.done).length;$('#s2').textContent=tasks.filter(late).length;$('#s3').textContent=tasks.filter(t=>t.done).length;
+ const card=t=>{const C=CATS[t.cat],isNew=!seen.has(t.id);seen.add(t.id);
+ return `<div class="tk ${isNew?'in':''} ${late(t)?'late':''} ${t.done?'done':''}" id="k${t.id}" style="--c:${C.c}">
+ <button class="ck" onclick="${t.done?'undo':'done'}('${t.id}')">${t.done?'✓':''}</button>
+ <div class="bd"><div class="tt">${esc(t.text)}</div>
+ <div class="ch"><span class="c">${C.i} ${C.n}</span>${t.rep?`<span>👤 ${esc(t.rep)}</span>`:''}${t.co?`<span>🏢 ${esc(t.co)}</span>`:''}</div>
+ ${t.due?`<div class="du">⏰ ${fmt(t.due)}${late(t)?' — متأخرة!':''}</div>`:''}</div>
+ <div class="ac">${!t.done&&t.due?`<button onclick="ics('${t.id}')">📅</button>`:''}<button onclick="del('${t.id}')">🗑</button></div></div>`};
+ $('#list').innerHTML=(open.length?open.map(card).join(''):'<div class="em"><i>🎉</i>لا توجد مهام مفتوحة</div>')+(dn.length?'<div class="sec">✔ منجزة اليوم (تختفي غداً)</div>'+dn.map(card).join(''):'');
 }
-const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const find=id=>tasks.find(t=>t.id===id);
-window.done=id=>{const t=find(id);t.done=true;t.doneAt=Date.now();save();render();hideBan()};
-window.undo=id=>{const t=find(id);t.done=false;delete t.doneAt;save();render()};
-window.del=id=>{if(confirm('حذف المهمة؟')){tasks=tasks.filter(t=>t.id!==id);save();render()}};
+const anim=(id,fn)=>{const e=document.getElementById('k'+id);if(e){e.classList.add('pop');setTimeout(fn,330)}else fn()};
+window.done=id=>anim(id,()=>{const t=find(id);t.done=true;t.doneAt=Date.now();save();render();hideBan()});
+window.undo=id=>{const t=find(id);t.done=false;delete t.doneAt;seen.delete(id);save();render()};
+window.del=id=>{if(confirm('حذف المهمة؟'))anim(id,()=>{tasks=tasks.filter(t=>t.id!==id);save();render()})};
 
+/* نافذة الإضافة */
+const sheet=o=>{$('#sh').classList.toggle('on',o);$('#ov').classList.toggle('on',o);if(o)setTimeout(()=>$('#tx').focus(),350)};
+$('#fab').onclick=()=>{unlockAudio();sheet(true)};$('#ov').onclick=()=>sheet(false);
 $('#add').onclick=()=>{
  const text=$('#tx').value.trim();if(!text)return $('#tx').focus();
  const v=$('#due').value;
- tasks.push({id:'t'+Date.now(),text,cat:$('#cat').value,due:v?new Date(v).getTime():null,created:Date.now(),done:false});
- $('#tx').value='';$('#due').value='';save();render();unlockAudio();
+ tasks.push({id:'t'+Date.now(),text,cat:$('#cat').value,rep:$('#rep').value.trim(),co:$('#co').value.trim(),due:v?new Date(v).getTime():null,created:Date.now(),done:false});
+ ['#tx','#rep','#co','#due'].forEach(s=>$(s).value='');
+ save();render();sheet(false);
  if(v&&'Notification' in window&&Notification.permission==='default')askPerm();
 };
 
-/* ---- الصوت ---- */
+/* الصوت */
 let ac;
 function unlockAudio(){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();ac.resume()}catch(e){}}
 document.addEventListener('click',unlockAudio);
 function beep(){try{unlockAudio();[0,.35,.7].forEach(o=>{const s=ac.createOscillator(),g=ac.createGain();s.type='square';s.frequency.value=880;g.gain.value=.25;s.connect(g);g.connect(ac.destination);s.start(ac.currentTime+o);s.stop(ac.currentTime+o+.22)})}catch(e){}}
 
-/* ---- الإشعارات ---- */
+/* الإشعارات */
 let reg=null;
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').then(r=>reg=r).catch(()=>{});
 function askPerm(){if(!('Notification' in window))return alert('المتصفح لا يدعم الإشعارات. على الآيفون: أضف التطبيق للشاشة الرئيسية أولاً.');Notification.requestPermission().then(updNb)}
-function updNb(){const b=$('#nb');if(!('Notification' in window)){b.textContent='⚠️ الإشعارات غير مدعومة';return}
- b.textContent=Notification.permission==='granted'?'🔔 التنبيهات مفعّلة':'🔔 تفعيل التنبيهات'}
+function updNb(){$('#nb').textContent=('Notification' in window&&Notification.permission==='granted')?'🔔':'🔕'}
 $('#nb').onclick=askPerm;updNb();
-
-function hideBan(){$('#ban').style.display='none'}
+function hideBan(){$('#ban').classList.remove('on')}
 function notify(t){
  beep();navigator.vibrate&&navigator.vibrate([300,100,300,100,300]);
- const b=$('#ban');b.textContent='⏰ '+t.text;b.style.display='block';b.onclick=hideBan;
+ const b=$('#ban');b.textContent='⏰ '+t.text;b.classList.add('on');b.onclick=hideBan;
  if('Notification' in window&&Notification.permission==='granted'){
-  const o={body:CATS[t.cat],tag:t.id,renotify:true,requireInteraction:true,vibrate:[300,100,300],icon:'icon-192.png'};
+  const o={body:[CATS[t.cat].n,t.rep,t.co].filter(Boolean).join(' • '),tag:t.id,renotify:true,requireInteraction:true,vibrate:[300,100,300],icon:'icon-192.png'};
   (reg?reg.showNotification('⏰ '+t.text,o):Promise.resolve(new Notification('⏰ '+t.text,o))).catch(()=>{try{new Notification('⏰ '+t.text,o)}catch(e){}});
  }
 }
 function check(){
  const n=Date.now();let ch=false;
- tasks.forEach(t=>{if(!t.done&&t.due&&t.due<=n&&(!t.n||n-t.n>=300000)){t.n=n;ch=true;notify(t)}}); /* يعيد التنبيه كل 5 دقائق حتى تكتمل */
+ tasks.forEach(t=>{if(!t.done&&t.due&&t.due<=n&&(!t.n||n-t.n>=300000)){t.n=n;ch=true;notify(t)}});
  if(ch){save();render()}
 }
 setInterval(check,10000);setInterval(render,60000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){check();render()}});
 
-/* ---- تصدير للتقويم ---- */
-window.ics=id=>{const t=find(id),z=x=>new Date(x).toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
- const s=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//tasks//AR','BEGIN:VEVENT','UID:'+t.id+'@tasks','DTSTAMP:'+z(Date.now()),'DTSTART:'+z(t.due),'DTEND:'+z(t.due+1800000),'SUMMARY:'+t.text.replace(/[\n,;]/g,' '),'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+t.text.replace(/[\n,;]/g,' '),'TRIGGER:PT0S','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
- const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s],{type:'text/calendar'}));a.download='task.ics';a.click()};
+/* التقويم */
+function build(list){
+ const z=x=>new Date(x).toISOString().replace(/[-:]/g,'').split('.')[0]+'Z',c=s=>s.replace(/[\n,;]/g,' ');
+ const ev=list.map(t=>{const s=c([t.text,t.rep,t.co].filter(Boolean).join(' - '));return ['BEGIN:VEVENT','UID:'+t.id+'@tasks','DTSTAMP:'+z(Date.now()),'DTSTART:'+z(t.due),'DTEND:'+z(t.due+1800000),'SUMMARY:'+s]
+  .concat(['PT0S','PT10M','PT30M','PT60M'].flatMap(p=>['BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+s,'TRIGGER:'+p,'END:VALARM']),['END:VEVENT']).join('\r\n')});
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(new Blob(['BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//tasks//AR\r\n'+ev.join('\r\n')+'\r\nEND:VCALENDAR'],{type:'text/calendar'}));
+ a.download='tasks.ics';a.click();
+}
+window.ics=id=>build([find(id)]);
+$('#ca').onclick=()=>{const l=tasks.filter(t=>!t.done&&t.due&&t.due>Date.now());l.length?build(l):alert('لا توجد مهام قادمة بوقت تنبيه')};
 
-/* ---- مزامنة تلكرام ---- */
+/* تلكرام */
 let cf={};try{cf=JSON.parse(localStorage.getItem('cf')||'{}')}catch(e){}
 $('#wu').value=cf.u||'';$('#wk').value=cf.k||'';$('#wi').value=cf.i||'60';
 $('#sy').onclick=async()=>{
@@ -149,27 +208,13 @@ $('#sy').onclick=async()=>{
  try{localStorage.setItem('cf',JSON.stringify({u,k,i}))}catch(e){}
  s.textContent='⏳ جاري المزامنة...';
  try{
-  const r=await fetch(u,{method:'POST',headers:{'content-type':'application/json','x-key':k},
-   body:JSON.stringify({interval:i,tasks:tasks.map(({id,text,cat,due,done})=>({id,text,cat,due,done}))})});
+  const r=await fetch(u,{method:'POST',headers:{'content-type':'application/json','x-key':k},body:JSON.stringify({interval:i,tasks:tasks.map(({id,text,cat,due,done,rep,co})=>({id,text,cat,due,done,rep,co}))})});
   const j=await r.json();
-  s.textContent=j.ok?'✅ تمت المزامنة ('+j.count+' مهمة) '+new Date().toLocaleTimeString('ar-EG')
-   :j.error==='no_chat'?'⚠️ افتح البوت بتلكرام واضغط Start ثم أعد المزامنة':'❌ الرمز السري غير صحيح';
- }catch(e){s.textContent='❌ تعذر الاتصال، تحقق من الرابط والإنترنت'}
+  s.textContent=j.ok?'✅ تمت المزامنة ('+j.count+' مهمة)':j.error==='no_chat'?'⚠️ افتح البوت بتلكرام واضغط Start ثم أعد المزامنة':'❌ الرمز السري غير صحيح';
+ }catch(e){s.textContent='❌ تعذر الاتصال'}
 };
 
-/* ---- تقويم: تنبيهات متكررة (عند الوقت ثم بعد 10 و30 و60 دقيقة) ---- */
-function build(list){
- const z=x=>new Date(x).toISOString().replace(/[-:]/g,'').split('.')[0]+'Z',c=s=>s.replace(/[\n,;]/g,' ');
- const ev=list.map(t=>['BEGIN:VEVENT','UID:'+t.id+'@tasks','DTSTAMP:'+z(Date.now()),'DTSTART:'+z(t.due),'DTEND:'+z(t.due+1800000),'SUMMARY:'+c(t.text)]
-  .concat(['PT0S','PT10M','PT30M','PT60M'].flatMap(p=>['BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+c(t.text),'TRIGGER:'+p,'END:VALARM']),['END:VEVENT']).join('\r\n'));
- const a=document.createElement('a');
- a.href=URL.createObjectURL(new Blob(['BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//tasks//AR\r\n'+ev.join('\r\n')+'\r\nEND:VCALENDAR'],{type:'text/calendar'}));
- a.download='tasks.ics';a.click();
-}
-window.ics=id=>build([find(id)]);
-$('#ca').onclick=()=>{const l=tasks.filter(t=>!t.done&&t.due&&t.due>Date.now());l.length?build(l):alert('لا توجد مهام قادمة بوقت تنبيه')};
-
-render();check();
+chips();render();check();
 </script>
 </body>
 </html>
